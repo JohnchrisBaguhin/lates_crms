@@ -6,53 +6,53 @@ include('config.php');
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Retrieve data from the form
-    $dogsOwned = $_POST['dogsOwned'];
+    $dogsOwned = $_POST['dogsOwned'];           // Optional: currently not used in DB insert
     $dogsVaccinated = $_POST['dogsVaccinated'];
     $dFirstName = $_POST['firstName'];
     $dMiddleInitial = $_POST['middleInitial'];  // Middle name/initial (optional)
     $dLastName = $_POST['lastName'];
-    $dTownID = $_POST['townID'];  // get selected town ID
+    $dTownID = $_POST['townID'];                // Selected town ID
 
-
-    // Full owner name can be combined for storage or further use
+    // Combine full name
     if (!empty($dMiddleInitial)) {
         $dOwnerFullName = $dFirstName . ' ' . $dMiddleInitial . ' ' . $dLastName;
     } else {
         $dOwnerFullName = $dFirstName . ' ' . $dLastName;
     }
 
-    // Debugging: Check the full name before inserting
-    echo "Owner Full Name: " . $dOwnerFullName; // Check if it's correct
+    // Debugging output
+    echo "Owner Full Name: " . $dOwnerFullName . "<br>";
 
-    // Get the current date in 'YYYY-MM-DD' format
-    $currentDate = date('Y-m-d');  // Current date (e.g., 2025-03-18)
+    // Get current date in 'YYYY-MM-DD' format
+    $currentDate = date('Y-m-d');
 
-    // Prepare the SQL query to insert the data into the database
-    $stmt = $conn->prepare("INSERT INTO tblreg (dOwner, dVaccinated, dTownID, dRegistrationDate) VALUES (?, ?, ?, ?)");
-    
-    // Check if the prepared statement was successful
+    // Prepare SQL query to insert data into the database
+    $stmt = $conn->prepare("
+        INSERT INTO tblreg (dOwner, dVaccinated, dTownID, dRegistrationDate)
+        VALUES (?, ?, ?, ?)
+    ");
+
+    // Check if preparation was successful
     if (!$stmt) {
         echo "Prepare failed: (" . $conn->errno . ") " . $conn->error;
         exit;
     }
 
-    // Bind parameters to the query
-    $stmt->bind_param("siiis", $dOwnerFullName, $dogsVaccinated, $dTownID, $currentDate); 
+    // Bind parameters: s = string, i = integer
+    $stmt->bind_param("siis", $dOwnerFullName, $dogsVaccinated, $dTownID, $currentDate);
 
-    // Execute the query
+    // Execute the statement
     if ($stmt->execute()) {
-        // If the insertion is successful, return a success message
         echo "Registration successful!";
     } else {
-        // If there is an error, output the error
         echo "Error: " . $stmt->error;
     }
 
-    // Close the prepared statement and the database connection
+    // Clean up
     $stmt->close();
     $conn->close();
+
 } else {
-    // If the request is not POST, return an error message
     echo "Invalid request method.";
 }
 ?>
