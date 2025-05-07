@@ -1,53 +1,39 @@
 <?php
-// Include the database connection file
-include 'config.php';
-
-// Start the session for maintaining user login state
 session_start();
+require 'config.php';
 
-// Check if the form has been submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    $username = $_POST['username'] ?? '';
+    $password = $_POST['password'] ?? '';
 
-    // Prepare the SQL statement using a question mark placeholder
     $stmt = $conn->prepare("SELECT id, username, password, role FROM users WHERE username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
 
-    // Get the result of the query
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
 
-    // Debugging: Print out user data for verification (remove in production)
-    if ($user) {
-        echo "User found: " . htmlspecialchars($user['username']) . "<br>";
-        echo "Stored hash: " . htmlspecialchars($user['password']) . "<br>";
-    } else {
-        echo "No user found with that username.<br>";
-    }
-
-    // Verify the password if a user is found
+    // Only verify and redirect if a user was found
     if ($user && password_verify($password, $user['password'])) {
-        // Set session variable for the logged-in user
         $_SESSION['username'] = $username;
 
-        // Check the user's role and redirect accordingly
-        if ($user['role'] == 'administrator') {
-            // Redirect to the admin dashboard
+        if ($user['role'] === 'administrator') {
             header('Location: home.html');
-            exit();
+            exit;
         } else {
-            // Redirect to the user dashboard
             header('Location: user_d.html');
-            exit();
+            exit;
         }
     } else {
-        // Authentication failed
-        echo "Invalid username or password.";
+        // Delay output until after checking redirection
+        $error = "Invalid username or password.";
     }
 
-    // Close the statement
     $stmt->close();
 }
 ?>
+
+<!-- Optional HTML output after login logic -->
+<?php if (isset($error)): ?>
+    <p style="color:red"><?= htmlspecialchars($error) ?></p>
+<?php endif; ?>
