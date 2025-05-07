@@ -37,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Bind parameters to the query
-    $stmt->bind_param("siiis", $dOwnerFullName, $dogsOwned, $dogsVaccinated, $dTownID, $currentDate); 
+    $stmt->bind_param("siiis", $dOwnerFullName, $dogsVaccinated, $dTownID, $currentDate); 
 
     // Execute the query
     if ($stmt->execute()) {
