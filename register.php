@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $currentDate = date('Y-m-d');  // Current date (e.g., 2025-03-18)
 
     // Prepare the SQL query to insert the data into the database
-    $stmt = $conn->prepare("INSERT INTO tblreg (dOwner, dOwned, dVacc, dTownID, dRegistrationDate) VALUES (?, ?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO tblreg (dOwner, dVacc, dTownID, dRegistrationDate) VALUES (?, ?, ?, ?, ?)");
     
     // Check if the prepared statement was successful
     if (!$stmt) {
